@@ -1,99 +1,127 @@
+# -*- coding: cp1252 -*-
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import time
 
-def prettify(elem):
-    # Return a pretty-printable XML string for the Element
-    rough_string = ET.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="    ")
-
 base_uri = 'http://datos.uchile.cl/'
-
-input_tree = ET.parse('input/autoridades.xml')
-input_root = input_tree.getroot()
 
 # Base element for authorities
 output_person_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
-                                            'xmlns:foaf': 'http://xmlns.com/foaf/spec/',
-                                            'xmlns:bio': 'http://someuri.com/',
+                                            'xmlns:foaf': 'http://xmlns.com/foaf/0.1/',
+                                            'xmlns:bio': 'http://vocab.org/bio/0.1/',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 
 # Base element for years
 output_year_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
-                                         'xmlns:foaf': 'http://xmlns.com/foaf/spec/',
-                                         'xmlns:bio': 'http://someuri.com/',
+                                         'xmlns:foaf': 'http://xmlns.com/foaf/0.1/',
+                                         'xmlns:bio': 'http://vocab.org/bio/0.1/',
                                          'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
-
-n_authorities = len(input_root.findall('authority'))
-i = 1
 
 birthYearDict = {}
 deathYearDict = {}
 
-# Iterate through authorities
-for authority in input_root.iterfind('authority'):
+i = 0
 
-    # Get the authority ID
-    authID = authority.find('authorityID').text
+for event, elem in ET.iterparse('input/autoridades-big.xml', events=('start', 'end', 'start-ns', 'end-ns')):
+    #print event, elem
+    if event == 'start' and elem.tag == 'authority':
+        authority = elem
+        authIDElement = authority.find('authorityID')
 
-    # Create person instance
-    personElement = ET.SubElement(output_person_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'autoridad/' + authID})
+        if authIDElement != None:
+            authID = authIDElement.text
+            if authID == None:
+                continue
+        else:
+            continue
 
-    # Get marcEntry element with tag attr == 100
-    marcEntryTextArray = authority.find(".//*[@tag='100']").text.split(',')
+        personElement = ET.SubElement(output_person_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'autoridad/' + authID})
 
-    # **REQUIRED FIELD** filter
-    if len(marcEntryTextArray) == 1: continue
+        nameElement = authority.find(".//*[@tag='100']")
+        if nameElement != None:
+            if nameElement.text != None:
+                marcEntryTextArray = nameElement.text.split('|')
 
-    # Create name element
-    nameElement = ET.SubElement(personElement, 'foaf:name')
-    nameElement.text = marcEntryTextArray[1].strip() + ' ' + marcEntryTextArray[0].strip()
+                if len(marcEntryTextArray) == 1: continue
 
-    # Birth and death case
-    if len(marcEntryTextArray) == 3:
-        yearTextArray = marcEntryTextArray[2].split('-')
-        # Filter trash or weird data
-        # TODO: handle cases 'xxxx a.C' and 'xxxx o x' with any variants included
-        for yearIndex in range(len(yearTextArray)):
-            try:
-                time.strptime(yearTextArray[yearIndex].strip(), "%Y").tm_year
-            except ValueError:
-                yearTextArray[yearIndex] = ''
+                for entry in marcEntryTextArray:
+                    if entry == '': continue
 
-        # Create birth element and instance if the year exists
-        if yearTextArray[0] != '':
-            birthEventUri = base_uri + 'nacimiento/' + yearTextArray[0].strip()
-            ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
-            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': birthEventUri})
-            try:
-                birthYearDict[yearTextArray[0].strip()]
-            except KeyError:
-                birthYearDict[yearTextArray[0].strip()] = ''
+                    # caso nombre
+                    if entry[0] == 'a':
+                        # arreglo apellido - nombre
+                        nameArray = entry[1:].split(',')
 
-        # Create death element and instance if the year exists
-        if yearTextArray[1] != '':
-            deathEventUri = base_uri + 'muerte/' + yearTextArray[1].strip()
-            ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
-            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': deathEventUri})
-            try:
-                deathYearDict[yearTextArray[1].strip()]
-            except KeyError:
-                deathYearDict[yearTextArray[1].strip()] = ''
+                        # arreglo nombre - apellido
+                        nameArray = nameArray[::-1]
 
-    # Progress feedback
-    if i%100 == 0:
-         print str(round(i*100.0/n_authorities,2)) + '%'
+                        # quitar espacios sobrantes por elemento
+                        nameArray = map(lambda e : e.strip() ,nameArray)
+
+                        # quitar elementos vacios del arreglo
+                        nameArray = filter(lambda e : e != '', nameArray)
+
+                        # crear elemento persona
+                        nameElement = ET.SubElement(personElement, 'foaf:name')
+                        nameElement.text = ' '.join(nameArray)
+
+                    # caso fechas
+                    if entry[0] == 'd':
+
+                        # arreglo de fechas nacimiento - muerte
+                        yearTextArray = entry[1:].split('-')
+
+                        # ver si la fecha es parseable
+                        # Sacar puntos, comas, espacios sobrantes
+                        # TODO: anhadir casos n. 1234 es nacimiento
+                        # TODO: anhadir casos m. 1234 es muerte
+                        # TODO: ver caso de fechas con 3 numeros
+                        for yearIndex in range(len(yearTextArray)):
+                            try:
+                                time.strptime(yearTextArray[yearIndex].strip().strip(',').strip('.'), "%Y").tm_year
+                                # fecha valida
+                                yearTextArray[yearIndex] = yearTextArray[yearIndex].strip().strip(',').strip('.')
+                            except ValueError:
+                                # fecha invalida
+                                yearTextArray[yearIndex] = ''
+
+                        if yearTextArray[0] != '' and yearTextArray[0] not in birthYearDict:
+                            # crear elemento anho nacimiento en personas
+                            birthEventUri = base_uri + 'nacimiento/' + yearTextArray[0]
+                            ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
+
+                            # crear elemento anho nacimiento en fechas
+                            yearElement = ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': birthEventUri})
+                            ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'http://purl.org/vocab/bio/0.1/Birth'})
+                            ET.SubElement(yearElement, 'bio:date').text = yearTextArray[0]
+
+                            # agregar al diccionario
+                            birthYearDict[yearTextArray[0]] = ''
+
+                        if len(yearTextArray) > 1:
+                            if yearTextArray[1] != '' and yearTextArray[1] not in deathYearDict:
+                                # crear elemento anho muerte en personas
+                                deathEventUri = base_uri + 'muerte/' + yearTextArray[1]
+                                ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
+
+                                # crear elemento anho muerte en fechas
+                                yearElement = ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': deathEventUri})
+                                ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'http://purl.org/vocab/bio/0.1/Death'})
+                                ET.SubElement(yearElement, 'bio:date').text = yearTextArray[1]
+
+                                # agregar al diccionario
+                                deathYearDict[yearTextArray[1]] = ''
+            else:
+                continue
+        else:
+            continue
     i += 1
+    # final prematuro
+    if i == 10000:
+        break
 
-# Write the output
 output_person_tree = ET.ElementTree(output_person_root)
 output_person_tree.write('output/personas.rdf', 'utf-8')
 
 output_year_tree = ET.ElementTree(output_year_root)
 output_year_tree.write('output/fechas.rdf', 'utf-8')
-
-print '100.00%'
-
-# For debugging
-print prettify(output_year_root)
