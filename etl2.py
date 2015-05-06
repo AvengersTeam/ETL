@@ -29,7 +29,7 @@ for authority in input_root.iterfind('authority'):
     authID = authority.find('authorityID').text
 
     # Create corporative instance
-    corporativeElement = ET.SubElement(output_corporativo_root, 'owl:NamedIndividual', {'about': base_uri + 'autoridad/' + authID})
+    corporativeElement = ET.SubElement(output_corporativo_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'autoridad/' + authID})
 
     # Get marcEntry element with tag attr == 110 corporate name
     marcEntryTextArray = authority.find(".//*[@tag='110']").text
