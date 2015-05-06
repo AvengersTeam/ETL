@@ -10,7 +10,7 @@ def prettify(elem):
 
 base_uri = 'http://datos.uchile.cl/'
 
-input_tree = ET.parse('input/autoridades-big.xml')
+input_tree = ET.parse('input/autoridades.xml')
 input_root = input_tree.getroot()
 
 # Base element for authorities
@@ -28,6 +28,9 @@ output_year_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
 n_authorities = len(input_root.findall('authority'))
 i = 1
 
+birthYearDict = {}
+deathYearDict = {}
+
 # Iterate through authorities
 for authority in input_root.iterfind('authority'):
 
@@ -35,7 +38,7 @@ for authority in input_root.iterfind('authority'):
     authID = authority.find('authorityID').text
 
     # Create person instance
-    personElement = ET.SubElement(output_person_root, 'owl:NamedIndividual', {'about': base_uri + 'autoridad/' + authID})
+    personElement = ET.SubElement(output_person_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'autoridad/' + authID})
 
     # Get marcEntry element with tag attr == 100
     marcEntryTextArray = authority.find(".//*[@tag='100']").text.split(',')
@@ -63,12 +66,20 @@ for authority in input_root.iterfind('authority'):
             birthEventUri = base_uri + 'nacimiento/' + yearTextArray[0].strip()
             ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
             ET.SubElement(output_year_root, 'owl:NamedIndividual', {'about': birthEventUri})
+            try:
+                birthYearDict[yearTextArray[0].strip()]
+            except KeyError:
+                birthYearDict[yearTextArray[0].strip()] = ''
 
         # Create death element and instance if the year exists
         if yearTextArray[1] != '':
             deathEventUri = base_uri + 'muerte/' + yearTextArray[1].strip()
             ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
             ET.SubElement(output_year_root, 'owl:NamedIndividual', {'about': deathEventUri})
+            try:
+                deathYearDict[yearTextArray[1].strip()]
+            except KeyError:
+                deathYearDict[yearTextArray[1].strip()] = ''
 
     # Progress feedback
     if i%100 == 0:
@@ -85,4 +96,4 @@ output_year_tree.write('output/fechas.rdf', 'utf-8')
 print '100.00%'
 
 # For debugging
-# print prettify(output_person_root)
+print prettify(output_person_root)
