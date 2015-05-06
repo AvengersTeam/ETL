@@ -65,7 +65,7 @@ for authority in input_root.iterfind('authority'):
         if yearTextArray[0] != '':
             birthEventUri = base_uri + 'nacimiento/' + yearTextArray[0].strip()
             ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
-            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'about': birthEventUri})
+            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': birthEventUri})
             try:
                 birthYearDict[yearTextArray[0].strip()]
             except KeyError:
@@ -75,7 +75,7 @@ for authority in input_root.iterfind('authority'):
         if yearTextArray[1] != '':
             deathEventUri = base_uri + 'muerte/' + yearTextArray[1].strip()
             ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
-            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'about': deathEventUri})
+            ET.SubElement(output_year_root, 'owl:NamedIndividual', {'rdf:about': deathEventUri})
             try:
                 deathYearDict[yearTextArray[1].strip()]
             except KeyError:
@@ -96,4 +96,4 @@ output_year_tree.write('output/fechas.rdf', 'utf-8')
 print '100.00%'
 
 # For debugging
-print prettify(output_person_root)
+print prettify(output_year_root)
