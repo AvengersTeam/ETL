@@ -84,7 +84,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
 
                 # crear elemento anho nacimiento en fechas
                 yearElement = ET.SubElement(output['year_root'], 'owl:NamedIndividual', {'rdf:about': birthEventUri})
-                ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'http://purl.org/vocab/bio/0.1/Birth'})
+                ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'bio:Birth'})
                 ET.SubElement(yearElement, 'bio:date').text = yearTextArray[0]
 
                 # agregar al diccionario
@@ -98,7 +98,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
 
                     # crear elemento anho muerte en fechas
                     yearElement = ET.SubElement(output['year_root'], 'owl:NamedIndividual', {'rdf:about': deathEventUri})
-                    ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'http://purl.org/vocab/bio/0.1/Death'})
+                    ET.SubElement(yearElement, 'rdf:type', {'rdf:resource': 'bio:Death'})
                     ET.SubElement(yearElement, 'bio:date').text = yearTextArray[1]
 
                     # agregar al diccionario
