@@ -37,7 +37,7 @@ for asset in input_root.iterfind("asset"):
         ID = asset.find('id').text
         print ID
         #crear instancia de obra
-        obraElement = ET.SubElement(output_obra_root, 'owl:Obra', {'rdf:about': base_uri + 'recurso/obra/' + ID})
+        obraElement = ET.SubElement(output_obra_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
         #agregar los subjects, puede haber mas de 1
         for subject in asset.iterfind(".//*[@name='Subject']"):
             for value in subject.findall('value'):
@@ -60,13 +60,13 @@ for asset in input_root.iterfind("asset"):
         ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
             
         #crear instancia de expresion
-        expresionElement = ET.SubElement(output_expresion_root, 'owl:Expresion', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        expresionElement = ET.SubElement(output_expresion_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
         ET.SubElement(expresionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1002'})
         
         
         
         #crear instancia de Manifestacion
-        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:Manifestacion', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
+        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
         right = asset.find(".//*[@name='Rights']")
         rightElement = ET.SubElement(manifestacionElement, 'dc:rights')
         rightElement.text = right.find('value').text
