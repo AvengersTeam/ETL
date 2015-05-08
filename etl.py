@@ -103,12 +103,12 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
 
                     # agregar al diccionario
                     deathYearDict[yearTextArray[1]] = ''
-    elem.clear();
+    elem.clear()
     i += 1
     #if i > 100: break
 
 print i
 ET.ElementTree( output['person_root'] ).write( 'output/personas.rdf', 'utf-8' )
 ET.ElementTree( output['year_root'] ).write( 'output/fechas.rdf', 'utf-8' )
-with open( 'output/personas.rdf', 'r' ) as ini, open( 'output/personas_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, enconding='utf-8' ) )
-with open( 'output/fechas.rdf', 'r' ) as ini, open( 'output/fechas_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, enconding='utf-8' ) )
+with open( 'output/personas.rdf', 'r' ) as ini, open( 'output/personas_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )
+with open( 'output/fechas.rdf', 'r' ) as ini, open( 'output/fechas_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )

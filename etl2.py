@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+import lxml.etree as etree
 import time
 
 def prettify(elem):
@@ -48,7 +49,8 @@ for authority in input_root.iterfind('authority'):
     
 # Write the output
 output_corporativo_tree = ET.ElementTree(output_corporativo_root)
-output_corporativo_tree.write('output/corporativos_temp.rdf', 'utf-8')
+output_corporativo_tree.write('output/corporativo.rdf', 'utf-8')
+with open( 'output/corporativo.rdf', 'r' ) as ini, open( 'output/corporativo_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )
 
 print 'RDF Corporativo formado.'
 
