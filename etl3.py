@@ -66,7 +66,7 @@ for asset in input_root.iterfind("asset"):
         
         
         #crear instancia de Manifestacion
-        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
+        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
         right = asset.find(".//*[@name='Rights']")
         rightElement = ET.SubElement(manifestacionElement, 'dc:rights')
         rightElement.text = right.find('value').text
