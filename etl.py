@@ -105,7 +105,6 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
                     deathYearDict[yearTextArray[1]] = ''
     elem.clear()
     i += 1
-    #if i > 100: break
 
 print i
 ET.ElementTree( output['person_root'] ).write( 'output/personas.rdf', 'utf-8' )
