@@ -23,9 +23,6 @@ output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologi
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 
-birthYearDict = {}
-deathYearDict = {}
-
 i = 0
 
 input_tree = ET.parse('input/Portfolio-Andres-bello.xml')
@@ -37,7 +34,7 @@ for asset in input_root.iterfind("asset"):
         ID = asset.find('id').text
         print ID
         #crear instancia de obra
-        obraElement = ET.SubElement(output_obra_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
+        obraElement = ET.SubElement(output_obra_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
         #agregar los subjects, puede haber mas de 1
         for subject in asset.iterfind(".//*[@name='Subject']"):
             for value in subject.findall('value'):
@@ -60,10 +57,8 @@ for asset in input_root.iterfind("asset"):
         ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
             
         #crear instancia de expresion
-        expresionElement = ET.SubElement(output_expresion_root, 'owl:NameIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        expresionElement = ET.SubElement(output_expresion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
         ET.SubElement(expresionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1002'})
-        
-        
         
         #crear instancia de Manifestacion
         manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
