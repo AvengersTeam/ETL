@@ -2,6 +2,7 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
+from uriFinder import getUri
 
 base_uri = 'http://datos.uchile.cl/'
 
@@ -49,6 +50,19 @@ for asset in input_root.iterfind("asset"):
         alternative = asset.find(".//*[@name='NAME']")
         alternativeElement = ET.SubElement(obraElement, 'dct:alternative')        
         alternativeElement.text = alternative.find('value').text
+        #adding the creator
+        creator = asset.find(".//*[@name='Creator']")
+        creatorElement = ET.SubElement(obraElement, 'dct:creator')
+        uri = None
+        keyword = creator.find('value').text #el creator que nos pasan es pura mula en todo caso... hay que parsearlo?
+        try:
+            uri = uriFinder.getUri(tree = creator, keyword = keyword)
+            creatorElement.text = uri
+        except Exception, e:
+            print keyword
+            continue
+        else:
+            pass
         #agregar fecha(?)
         issued = asset.find(".//*[@name='Date']")
         issuedElement = ET.SubElement(obraElement, 'dct:issued')
@@ -74,7 +88,7 @@ for asset in input_root.iterfind("asset"):
         if source !=None:
             sourceElement.text = source.find('value').text
         ET.SubElement(manifestacionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1003'})
-            
+
 output_obra_tree = ET.ElementTree(output_obra_root)
 output_obra_tree.write('output/obra.rdf', 'utf-8')
 
