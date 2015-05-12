@@ -14,6 +14,7 @@ output_obra_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
 											
 output_manifestacion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
+                                            'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 											
@@ -54,26 +55,50 @@ for asset in input_root.iterfind("asset"):
         issuedElement = ET.SubElement(obraElement, 'dct:issued')
         if issued !=None:
             issuedElement.text = issued.find('value').text
+        #agregar type
         ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
+        #agregar link a expresion
+        ET.SubElement(obraElement, 'frbrer:isRealizedThrough', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
             
         #crear instancia de expresion
         expresionElement = ET.SubElement(output_expresion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        #agregar type
         ET.SubElement(expresionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1002'})
+        language = asset.find(".//*[@name='Language']")
+        if language != None:
+            lang=language.find('value').text
+            if lang == 'spa' or lang == 'Español':
+                ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/spa'})
+            if lang == 'eng' or lang == 'Inglés':
+                ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/eng'})
+        #agregar link a obra y manifestacion
+        ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:about': base_uri + 'recurso/obra/' + ID})
+        ET.SubElement(expresionElement,'frbrer:isEmbodiedln',{'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
         
         #crear instancia de Manifestacion
         manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
+        #agregar derechos
         right = asset.find(".//*[@name='Rights']")
         rightElement = ET.SubElement(manifestacionElement, 'dc:rights')
         rightElement.text = right.find('value').text
+        #agregar publicador
         publisher = asset.find(".//*[@name='Publisher']")
         publisherElement = ET.SubElement(manifestacionElement, 'dc:publisher')
         if publisher !=None:
             publisherElement.text = publisher.find('value').text
+        #agregar fuente
         source = asset.find(".//*[@name='Source']")
         sourceElement = ET.SubElement(manifestacionElement, 'dc:source')
         if source !=None:
             sourceElement.text = source.find('value').text
+        #agregar type (?)
         ET.SubElement(manifestacionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1003'})
+        #agregar licensia, cambiar link cuando "aiga" algo 
+        ET.SubElement(manifestacionElement, 'dct:license', {'rdf:resource':'https://creativecommons.org/publicdomain/zero/1.0/'})
+        #revisar si es rdf:resourse u otra cosa
+        ET.SubElement(manifestacionElement, 'dct:identifier', {'rdf:resource':'http://bibliotecadigital.uchile.cl/client/search/asset/'+ID})
+        #agregar link a expresion
+        ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:about': base_uri + 'recurso/expresion/'+ID})
             
 output_obra_tree = ET.ElementTree(output_obra_root)
 output_obra_tree.write('output/obra.rdf', 'utf-8')
