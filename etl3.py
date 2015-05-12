@@ -93,7 +93,7 @@ for asset in input_root.iterfind("asset"):
             sourceElement.text = source.find('value').text
         #agregar type (?)
         ET.SubElement(manifestacionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1003'})
-        #agregar licensia, cambiar link cuando "aiga" algo 
+        #agregar licensia, cambiar link cuando "aiga" algo
         ET.SubElement(manifestacionElement, 'dct:license', {'rdf:resource':'https://creativecommons.org/publicdomain/zero/1.0/'})
         #revisar si es rdf:resourse u otra cosa
         ET.SubElement(manifestacionElement, 'dct:identifier', {'rdf:resource':'http://bibliotecadigital.uchile.cl/client/search/asset/'+ID})
