@@ -14,7 +14,7 @@ with open('input/autoridades-corporativos-all-2005.xml','r') as xml_file:
     input_tree = ET.parse(xml_file)
 input_root = input_tree.getroot()
 
-# Base element for authorities 
+# Base element for corporativo
 output_corporativo_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
                                             'xmlns:foaf': 'http://xmlns.com/foaf/spec/',
                                             'xmlns:bio': 'http://someuri.com/',
@@ -43,6 +43,8 @@ for authority in input_root.iterfind('authority'):
     # Create name element
     nameElement = ET.SubElement(corporativeElement, 'foaf:name')
     nameElement.text = marcEntryTextArray.strip()
+
+    #
 
     #print nameElement
     #print ET.tostring(nameElement,"utf-8").decode('utf-8')
