@@ -2,6 +2,8 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
+from uriFinder import getUri, multiDocumentSearch
+import sys, os
 
 base_uri = 'http://datos.uchile.cl/'
 
@@ -33,7 +35,6 @@ for asset in input_root.iterfind("asset"):
     i+=1
     if i>1:     
         ID = asset.find('id').text
-        print ID
         #crear instancia de obra
         obraElement = ET.SubElement(output_obra_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
         #agregar los subjects, puede haber mas de 1
@@ -50,6 +51,20 @@ for asset in input_root.iterfind("asset"):
         alternative = asset.find(".//*[@name='NAME']")
         alternativeElement = ET.SubElement(obraElement, 'dct:alternative')        
         alternativeElement.text = alternative.find('value').text
+
+        #adding the creator's uri
+        creator = asset.find(".//*[@name='Creator']")
+        uri = None
+        keyword = creator.find('value').text 
+        #files with their respective element's tags
+        filepaths = {
+        'output/personas_pretty.rdf' : '{http://datos.uchile.cl/ontologia/}NamedIndividual',
+        'output/corporativos_temp.rdf': '{http://datos.uchile.cl/ontologia/}NamedIndividual'
+        }
+        uri = multiDocumentSearch(keyword = keyword, filepaths = filepaths)
+        if uri:
+            creatorElement = ET.SubElement(obraElement, 'dct:creator', {'rdf:resource' : uri})
+
         #agregar fecha(?)
         issued = asset.find(".//*[@name='Date']")
         issuedElement = ET.SubElement(obraElement, 'dct:issued')

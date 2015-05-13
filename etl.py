@@ -28,13 +28,13 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
     if authIDElement == None or authIDElement.text == None: continue
     authID = authIDElement.text
 
-    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'autoridad/' + authID} )
-
     nameElement = authority.find( ".//*[@tag='100']" )
     if nameElement == None or nameElement.text == None: continue
     
     marcEntryTextArray = nameElement.text.split('|')
     if len(marcEntryTextArray) == 1: continue
+
+    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'autoridad/' + authID} )
 
     for entry in marcEntryTextArray:
         if entry == '': continue
