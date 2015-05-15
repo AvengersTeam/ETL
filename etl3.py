@@ -90,7 +90,7 @@ for asset in input_root.iterfind("asset"):
         #agregar type
         ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
         #agregar link a expresion
-        ET.SubElement(obraElement, 'frbrer:isRealizedThrough', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        ET.SubElement(obraElement, 'frbrer:isRealizedThrough', {'rdf:resource': base_uri + 'recurso/expresion/'+ID})
             
         #crear instancia de expresion
         expresionElement = ET.SubElement(output_expresion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
@@ -104,8 +104,8 @@ for asset in input_root.iterfind("asset"):
             if lang == 'eng' or lang == 'Inglés':
                 ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/eng'})
         #agregar link a obra y manifestacion
-        ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:about': base_uri + 'recurso/obra/' + ID})
-        ET.SubElement(expresionElement,'frbrer:isEmbodiedln',{'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
+        ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:resource': base_uri + 'recurso/obra/' + ID})
+        ET.SubElement(expresionElement,'frbrer:isEmbodiedln',{'rdf:resource': base_uri + 'recurso/manifestacion/'+ID})
         
         #crear instancia de Manifestacion
         manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
@@ -130,7 +130,7 @@ for asset in input_root.iterfind("asset"):
         #revisar si es rdf:resourse u otra cosa
         ET.SubElement(manifestacionElement, 'dct:identifier', {'rdf:resource':'http://bibliotecadigital.uchile.cl/client/search/asset/'+ID})
         #agregar link a expresion
-        ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:resource': base_uri + 'recurso/expresion/'+ID})
 
             
 output_obra_tree = ET.ElementTree(output_obra_root)
