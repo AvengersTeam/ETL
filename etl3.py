@@ -2,7 +2,8 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
-from uriFinder import getUri, multiDocumentSearch
+from uriFinder import multiDocumentSearch
+from parsers import nameParser
 import sys, os
 
 base_uri = 'http://datos.uchile.cl/'
@@ -31,9 +32,12 @@ i = 0
 input_tree = ET.parse('input/Portfolio-Andres-bello.xml')
 input_root = input_tree.getroot()
 
+creators = []
+
 for asset in input_root.iterfind("asset"):
     i+=1
     if i>1:     
+        print i
         ID = asset.find('id').text
         #crear instancia de obra
         obraElement = ET.SubElement(output_obra_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
@@ -56,6 +60,19 @@ for asset in input_root.iterfind("asset"):
         creator = asset.find(".//*[@name='Creator']")
         uri = None
         keyword = creator.find('value').text 
+        keyword = nameParser(keyword)
+
+        #######################################################################
+        #                       NEW SEARCH METHOD                             #
+        #######################################################################
+
+        #TO BE DONE
+        #creators.append((keyword, obraElement))
+
+        #######################################################################
+        #                       /NEW SEARCH METHOD                             #
+        #######################################################################
+
         #files with their respective element's tags
         filepaths = {
         'output/personas_pretty.rdf' : '{http://datos.uchile.cl/ontologia/}NamedIndividual',
@@ -82,9 +99,9 @@ for asset in input_root.iterfind("asset"):
         language = asset.find(".//*[@name='Language']")
         if language != None:
             lang=language.find('value').text
-            if lang == 'spa' or lang == 'Español':
+            if lang == 'spa' or lang == 'EspaÃ±ol':
                 ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/spa'})
-            if lang == 'eng' or lang == 'Inglés':
+            if lang == 'eng' or lang == 'InglÃ©s':
                 ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/eng'})
         #agregar link a obra y manifestacion
         ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:about': base_uri + 'recurso/obra/' + ID})
@@ -114,6 +131,7 @@ for asset in input_root.iterfind("asset"):
         ET.SubElement(manifestacionElement, 'dct:identifier', {'rdf:resource':'http://bibliotecadigital.uchile.cl/client/search/asset/'+ID})
         #agregar link a expresion
         ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:about': base_uri + 'recurso/expresion/'+ID})
+
             
 output_obra_tree = ET.ElementTree(output_obra_root)
 output_obra_tree.write('output/obra.rdf', 'utf-8')
