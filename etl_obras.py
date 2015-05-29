@@ -67,23 +67,22 @@ for event, elem  in ET.iterparse('input/Portfolio-Andres-bello.xml',events=( 'st
     alternative = asset.find(".//*[@name='NAME']")
     alternativeElement = ET.SubElement(obraElement, 'dct:alternative')        
     alternativeElement.text = alternative.find('value').text
-        #adding the creator's uri
-    '''
-        creator = asset.find(".//*[@name='Creator']")
-        uri = None
-        keyword = creator.find('value').text 
-        keyword = nameParser(keyword)
+    
+    #adding the creator's uri
+    creator = asset.find(".//*[@name='Creator']")
+    uri = None
+    keyword = creator.find('value').text 
+    keyword = nameParser(keyword)
 
-        #files with their respective element's tags
-        filepaths = {
-        'output/personas_pretty.rdf' : '{http://datos.uchile.cl/ontologia/}NamedIndividual',
-        'output/corporativo_pretty.rdf': '{http://datos.uchile.cl/ontologia/}NamedIndividual'
-        }
-        #uri = multiDocumentSearch(keyword = keyword, filepaths = filepaths)
-        uri = personDict.get(keyword)
-        if uri:
-            creatorElement = ET.SubElement(obraElement, 'dct:creator', {'rdf:resource' : uri})
-        '''
+    #files with their respective element's tags
+    filepaths = {
+    'output/personas_pretty.rdf' : '{http://datos.uchile.cl/ontologia/}NamedIndividual',
+    'output/corporativo_pretty.rdf': '{http://datos.uchile.cl/ontologia/}NamedIndividual'
+    }
+    #uri = multiDocumentSearch(keyword = keyword, filepaths = filepaths)
+    uri = personDict.get(keyword)
+    if uri:
+        creatorElement = ET.SubElement(obraElement, 'dct:creator', {'rdf:resource' : uri})
 
     #agregar fecha(?)
     issued = asset.find(".//*[@name='Date']")

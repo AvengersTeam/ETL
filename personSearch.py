@@ -37,9 +37,3 @@ def makeDictionary(filepath, keyTag, attribute):
 		if key and value:
 			dictionary[key] = value
 	return personDictionary(dictionary) 
-
-makeDictionary(
-	filepath = 'output/personas_pretty.rdf', 
-	keyTag = '{http://xmlns.com/foaf/0.1/}name', 
-	attribute = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about'
-	)
