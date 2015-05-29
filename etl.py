@@ -34,7 +34,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
     marcEntryTextArray = nameElement.text.split('|')
     if len(marcEntryTextArray) == 1: continue
 
-    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'autoridad/' + authID} )
+    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'recurso/autoridad/' + authID} )
 
     for entry in marcEntryTextArray:
         if entry == '': continue
@@ -79,7 +79,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
 
             if yearTextArray[0] != '' and yearTextArray[0] not in birthYearDict:
                 # crear elemento anho nacimiento en personas
-                birthEventUri = BASE_URI + 'nacimiento/' + yearTextArray[0]
+                birthEventUri = BASE_URI + 'recurso/nacimiento/' + yearTextArray[0]
                 ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
 
                 # crear elemento anho nacimiento en fechas
@@ -93,7 +93,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
             if len(yearTextArray) > 1:
                 if yearTextArray[1] != '' and yearTextArray[1] not in deathYearDict:
                     # crear elemento anho muerte en personas
-                    deathEventUri = BASE_URI + 'muerte/' + yearTextArray[1]
+                    deathEventUri = BASE_URI + 'recurso/muerte/' + yearTextArray[1]
                     ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
 
                     # crear elemento anho muerte en fechas

@@ -10,7 +10,7 @@ def prettify(elem):
     return reparsed.toprettyxml(indent="    ")
 
 base_uri = 'http://datos.uchile.cl/'
-with open('input/autoridades-corporativos-all-2005.xml','r') as xml_file:
+with open('input/autoridades-corporativos.xml','r') as xml_file:
     input_tree = ET.parse(xml_file)
 input_root = input_tree.getroot()
 
