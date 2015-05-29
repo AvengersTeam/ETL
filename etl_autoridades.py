@@ -4,7 +4,9 @@ import lxml.etree as etree
 import time
 from parsers import nameParser
 
-BASE_URI = 'http://datos.uchile.cl/'
+BASE_URI = 'http://datos.uchile.cl/recurso/'
+
+log_file = open('\logs\log_autoridades.txt', 'w') 
 
 dic = {
     'xmlns:owl': BASE_URI + 'ontologia/',
@@ -26,16 +28,22 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
     authority = elem
     authIDElement = authority.find('authorityID')
 
-    if authIDElement == None or authIDElement.text == None: continue
+    if authIDElement == None or authIDElement.text == None: 
+        date = str(datetime.now())
+        log_file.write('['+ date +']: '  + 'error: autoridad sin Id\n')
+        continue
     authID = authIDElement.text
 
     nameElement = authority.find( ".//*[@tag='100']" )
-    if nameElement == None or nameElement.text == None: continue
+    if nameElement == None or nameElement.text == None: 
+        date = str(datetime.now())
+        log_file.write('['+ date +']: ' + 'error: autoridad sin Tag 100, id = ' + authID + '\n')
+        continue
     
     marcEntryTextArray = nameElement.text.split('|')
     if len(marcEntryTextArray) == 1: continue
 
-    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'recurso/autoridad/' + authID} )
+    personElement = ET.SubElement( output['person_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'autoridad/' + authID} )
 
     for entry in marcEntryTextArray:
         if entry == '': continue
@@ -61,16 +69,18 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
             # TODO: ver caso de fechas con 3 numeros
             for yearIndex in range(len(yearTextArray)):
                 try:
-                    time.strptime(yearTextArray[yearIndex].strip().strip(',').strip('.'), "%Y").tm_year
+                    time.strptime(yearTextArray[yearIndex].strip(), "%Y").tm_year
                     # fecha valida
-                    yearTextArray[yearIndex] = yearTextArray[yearIndex].strip().strip(',').strip('.')
+                    yearTextArray[yearIndex] = yearTextArray[yearIndex].strip()
                 except ValueError:
                     # fecha invalida
+                    date = str(datetime.now())
+                    log_file.write('['+ date +']: '  + 'error: fecha mal formateada, id = ' +  `authID` + ', fecha = ' + `yearTextArray[yearIndex]` + '\n') 
                     yearTextArray[yearIndex] = ''
 
             if yearTextArray[0] != '' and yearTextArray[0] not in birthYearDict:
                 # crear elemento anho nacimiento en personas
-                birthEventUri = BASE_URI + 'recurso/nacimiento/' + yearTextArray[0]
+                birthEventUri = BASE_URI + 'nacimiento/' + yearTextArray[0]
                 ET.SubElement(personElement, 'bio:event', {'rdf:resource': birthEventUri})
 
                 # crear elemento anho nacimiento en fechas
@@ -84,7 +94,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
             if len(yearTextArray) > 1:
                 if yearTextArray[1] != '' and yearTextArray[1] not in deathYearDict:
                     # crear elemento anho muerte en personas
-                    deathEventUri = BASE_URI + 'recurso/muerte/' + yearTextArray[1]
+                    deathEventUri = BASE_URI + 'muerte/' + yearTextArray[1]
                     ET.SubElement(personElement, 'bio:event', {'rdf:resource': deathEventUri})
 
                     # crear elemento anho muerte en fechas
