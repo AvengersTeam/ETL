@@ -2,7 +2,8 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
-from uriFinder import multiDocumentSearch
+#from uriFinder import multiDocumentSearch
+from personSearch import makeDictionary, personDictionary
 from parsers import nameParser
 import sys, os
 
@@ -32,7 +33,11 @@ i = 0
 input_tree = ET.parse('input/Portfolio-Andres-bello.xml')
 input_root = input_tree.getroot()
 
-creators = []
+personDict = makeDictionary(
+    filepath = 'output/personas_pretty.rdf', 
+    keyTag = '{http://xmlns.com/foaf/0.1/}name', 
+    attribute = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about'
+    )
 
 for asset in input_root.iterfind("asset"):
 '''
@@ -62,32 +67,20 @@ for event, elem  in ET.iterparse('input/Portfolio-Andres-bello.xml',events=( 'st
     alternative = asset.find(".//*[@name='NAME']")
     alternativeElement = ET.SubElement(obraElement, 'dct:alternative')        
     alternativeElement.text = alternative.find('value').text
-
         #adding the creator's uri
     '''
         creator = asset.find(".//*[@name='Creator']")
         uri = None
         keyword = creator.find('value').text 
         keyword = nameParser(keyword)
-        print(keyword)
-
-        #######################################################################
-        #                       NEW SEARCH METHOD                             #
-        #######################################################################
-
-        #TO BE DONE
-        #creators.append((keyword, obraElement))
-
-        #######################################################################
-        #                       /NEW SEARCH METHOD                             #
-        #######################################################################
 
         #files with their respective element's tags
         filepaths = {
         'output/personas_pretty.rdf' : '{http://datos.uchile.cl/ontologia/}NamedIndividual',
         'output/corporativo_pretty.rdf': '{http://datos.uchile.cl/ontologia/}NamedIndividual'
         }
-        uri = multiDocumentSearch(keyword = keyword, filepaths = filepaths)
+        #uri = multiDocumentSearch(keyword = keyword, filepaths = filepaths)
+        uri = personDict.get(keyword)
         if uri:
             creatorElement = ET.SubElement(obraElement, 'dct:creator', {'rdf:resource' : uri})
         '''
