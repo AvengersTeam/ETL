@@ -20,7 +20,7 @@ Tutorial Ejecución
 
 * Ejecutar ETL correspondiente
 ```bash
-> python etl-[tipo].py
+> python etl_[tipo].py
 ```
 
 * Si desea correr todos a la vez ejecutar `run.py`
