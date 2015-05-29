@@ -8,16 +8,14 @@ def nameParser(name):
     	name = [name[0], name[1]]
     # arreglo nombre - apellido
     name = name[::-1]
-    print name
+
     # quitar espacios sobrantes por elemento
     name = map(lambda e : e.strip() ,name)
 
     # quitar elementos vacios del arreglo
     name = filter(lambda e : e != '', name)
-    result = ""
+
     #juntar todo
-    for element in name:
-    	result += element + " "
-    result = result.strip()
+    result = ' '.join(name)
 
     return result

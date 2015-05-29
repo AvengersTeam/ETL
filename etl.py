@@ -2,6 +2,7 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
+from parsers import nameParser
 
 BASE_URI = 'http://datos.uchile.cl/'
 
@@ -41,21 +42,11 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
 
         # caso nombre
         if entry[0] == 'a':
-            # arreglo apellido - nombre
-            nameArray = entry[1:].split(',')
-
-            # arreglo nombre - apellido
-            nameArray = nameArray[::-1]
-
-            # quitar espacios sobrantes por elemento
-            nameArray = map(lambda e : e.strip() ,nameArray)
-
-            # quitar elementos vacios del arreglo
-            nameArray = filter(lambda e : e != '', nameArray)
+            name = nameParser(entry[1:])
 
             # crear elemento persona
             nameElement = ET.SubElement(personElement, 'foaf:name')
-            nameElement.text = ' '.join(nameArray)
+            nameElement.text = name
 
         # caso fechas
         if entry[0] == 'd':
