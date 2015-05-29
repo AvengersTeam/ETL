@@ -2,11 +2,12 @@
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import time
+from datetime import datetime
 from parsers import nameParser
 
 BASE_URI = 'http://datos.uchile.cl/recurso/'
 
-log_file = open('\logs\log_autoridades.txt', 'w') 
+log_file = open('./logs/log_autoridades.txt', 'w') 
 
 dic = {
     'xmlns:owl': BASE_URI + 'ontologia/',
@@ -63,7 +64,7 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
             yearTextArray = entry[1:].split('-')
 
             # ver si la fecha es parseable
-            # Sacar puntos, comas, espacios sobrantes
+            # TODO: Sacar puntos, comas.
             # TODO: anhadir casos n. 1234 es nacimiento
             # TODO: anhadir casos m. 1234 es muerte
             # TODO: ver caso de fechas con 3 numeros
