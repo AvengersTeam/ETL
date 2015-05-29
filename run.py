@@ -2,20 +2,28 @@ import os
 import sys
 from prettifier import prettify
 
+print 'Autoridades:'
+
 try:
-    execfile('etl-autoridades.py')
+    execfile('etl_autoridades.py')
 except Exception:
 	raise Exception('Error ETL-autoridades')
 
+print 'Listo!'
+print 'Obras:'
+
 try:
-    execfile('etl-obras.py')
+    execfile('etl_obras.py')
 except Exception:
 	raise Exception('Error ETL-obras')
 
+print 'Listo!'
+print 'Corporativo:'
+
 try:
-    execfile('etl-corporativo.py')
+    execfile('etl_corporativo.py')
 except Exception:
 	raise Exception('Error ETL-corporativo')
 
-print('Listo!')
-
+print 'Listo!'
+print 'Todo Listo!'
