@@ -71,11 +71,11 @@ countriesSet = set([])
 i = 0
 total = 0
 # Rescatar todos los paises del mundo desde archivo Json y agregarselos al countriesSet
-with open('input/other/paises.json') as data_file:    
+with open('localizations/paises.json') as data_file:    
     data = json.load(data_file)
 for key in data.keys():
     countriesSet.add(unidecode(data[key]))
-with open('input/other/ciudades_chile.json') as data_file:    
+with open('localizations/ciudades_chile.json') as data_file:    
     data = json.load(data_file)
 for d in data:
     countriesSet.add(unidecode(d))
