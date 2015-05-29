@@ -47,7 +47,7 @@ def createCountriesElements():
         countryElement = ET.SubElement( output['location_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'localidad/' + locID} )
 
 
-BASE_URI = 'http://datos.uchile.cl/'
+BASE_URI = 'http://datos.uchile.cl/recurso'
 log_file = open(os.path.expanduser('~') + '\ETL\logs\log_corporativo.rtf', 'w') 
 pp = pprint.PrettyPrinter(indent=4)
 
