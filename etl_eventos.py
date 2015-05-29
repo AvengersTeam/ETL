@@ -1,7 +1,7 @@
 # -*- coding: cp1252 -*-
 import re
 import json
-# debe ser bajado unidecode por pip
+# debe ser bajado por pip
 from unidecode import unidecode
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
