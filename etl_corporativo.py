@@ -55,9 +55,9 @@ def createCountriesElements():
         #print("locID: " + locID)
         countryElement = ET.SubElement( output['location_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'localidad/' + locID} )
 
-
-BASE_URI = 'http://datos.uchile.cl/'
+BASE_URI = 'http://datos.uchile.cl/recurso'
 log_file = open(log_directory + 'log_corporativo.txt', 'w') 
+
 pp = pprint.PrettyPrinter(indent=4)
 
 wa = {} # Diccionario para guardar las relaciones de tipo "anterior". Ej: Uchile wa UnivChile => Uchile paso a llamarse UnivChile en cierto momento
