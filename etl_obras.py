@@ -7,22 +7,22 @@ from personSearch import makeDictionary, personDictionary
 from parsers import nameParser
 import sys, os
 
-base_uri = 'http://datos.uchile.cl/'
+base_uri = 'http://datos.uchile.cl/recurso'
 
 # Base element for "portafolio andes bello"
-output_obra_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_obra_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 											
-output_manifestacion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_manifestacion_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 											
-output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
@@ -45,7 +45,7 @@ for asset in input_root.iterfind("asset"):
         print i
         ID = asset.find('id').text
         #crear instancia de obra
-        obraElement = ET.SubElement(output_obra_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/obra/' + ID})
+        obraElement = ET.SubElement(output_obra_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'obra/' + ID})
         #agregar los subjects, puede haber mas de 1
         for subject in asset.iterfind(".//*[@name='Subject']"):
             for value in subject.findall('value'):
@@ -84,10 +84,10 @@ for asset in input_root.iterfind("asset"):
         #agregar type
         ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
         #agregar link a expresion
-        ET.SubElement(obraElement, 'frbrer:isRealizedThrough', {'rdf:resource': base_uri + 'recurso/expresion/'+ID})
+        ET.SubElement(obraElement, 'frbrer:isRealizedThrough', {'rdf:resource': base_uri + 'expresion/'+ID})
             
         #crear instancia de expresion
-        expresionElement = ET.SubElement(output_expresion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/expresion/'+ID})
+        expresionElement = ET.SubElement(output_expresion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'expresion/'+ID})
         #agregar type
         ET.SubElement(expresionElement, 'rdf:type', {'rdf:resource': 'frbrer:C1002'})
         language = asset.find(".//*[@name='Language']")
@@ -98,11 +98,11 @@ for asset in input_root.iterfind("asset"):
             if lang == 'eng' or lang == 'Inglés':
                 ET.SubElement(expresionElement, 'dc:language', {'rdf:resource':'http://www.lexvo.org/page/iso639-3/eng'})
         #agregar link a obra y manifestacion
-        ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:resource': base_uri + 'recurso/obra/' + ID})
-        ET.SubElement(expresionElement,'frbrer:isEmbodiedln',{'rdf:resource': base_uri + 'recurso/manifestacion/'+ID})
+        ET.SubElement(expresionElement,'frbrer:isRealizationOf',{'rdf:resource': base_uri + 'obra/' + ID})
+        ET.SubElement(expresionElement,'frbrer:isEmbodiedln',{'rdf:resource': base_uri + 'manifestacion/'+ID})
         
         #crear instancia de Manifestacion
-        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'recurso/manifestacion/'+ID})
+        manifestacionElement = ET.SubElement(output_manifestacion_root, 'owl:NamedIndividual', {'rdf:about': base_uri + 'manifestacion/'+ID})
         #agregar derechos
         right = asset.find(".//*[@name='Rights']")
         rightElement = ET.SubElement(manifestacionElement, 'dc:rights')
@@ -124,7 +124,7 @@ for asset in input_root.iterfind("asset"):
         #revisar si es rdf:resourse u otra cosa
         ET.SubElement(manifestacionElement, 'dct:identifier', {'rdf:resource':'http://bibliotecadigital.uchile.cl/client/sisib/search/detailnonmodal?d=ent%3A%2F%2FSD_ASSET%2F'+ID[:2]+'%2F'+ID+'~ASSET~0~17'})
         #agregar link a expresion
-        ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:resource': base_uri + 'recurso/expresion/'+ID})
+        ET.SubElement(manifestacionElement,'frbrer:isEmbodimentOf',{'rdf:resource': base_uri + 'expresion/'+ID})
 
             
 output_obra_tree = ET.ElementTree(output_obra_root)
