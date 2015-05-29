@@ -22,7 +22,7 @@ output = {
 birthYearDict = {}; deathYearDict = {}
 i = 0
 for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 'end', 'start-ns', 'end-ns' ) ):
-    if event != 'start' or elem.tag != 'authority': continue
+    if event != 'end' or elem.tag != 'authority': continue
     authority = elem
     authIDElement = authority.find('authorityID')
 

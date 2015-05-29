@@ -6,7 +6,7 @@ import lxml.etree as etree
 #then it returns the uri defined in the element's tag 'rdf:about'
 def getAttribute(keyword, filepath, tag, attribute):
 	for event, tree in ET.iterparse( filepath, events=( 'start', 'end', 'start-ns', 'end-ns' ) ):
-		if event != 'start' or tree.tag != tag: continue
+		if event != 'end' or tree.tag != tag: continue
 		for child in tree:
 			if child.text == keyword:
 				return tree.attrib[attribute]
