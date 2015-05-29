@@ -9,19 +9,19 @@ import sys, os
 base_uri = 'http://datos.uchile.cl/recurso'
 
 # Base element for "portafolio andes bello"
-output_obra_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_obra_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 											
-output_manifestacion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_manifestacion_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 											
-output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': base_uri + 'ontologia/',
+output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
                                             'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
                                             'xmlns:dct': 'http://purl.org/dc/terms/',
                                             'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
