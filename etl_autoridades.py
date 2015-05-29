@@ -109,6 +109,8 @@ for event, elem in ET.iterparse( 'input/autoridades-big.xml', events=( 'start', 
     i += 1
 
 print i
+
+log_file.close()
 ET.ElementTree( output['person_root'] ).write( 'output/personas.rdf', 'utf-8' )
 ET.ElementTree( output['year_root'] ).write( 'output/fechas.rdf', 'utf-8' )
 with open( 'output/personas.rdf', 'r' ) as ini, open( 'output/personas_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )
