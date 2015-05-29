@@ -10,7 +10,8 @@ from unidecode import unidecode
 from datetime import datetime
 import warnings
 
-warnings.filterwarnings('error')
+# warnings.filterwarnings('error')
+base_uri = 'http://datos.uchile.cl/recurso/'
 
 # Crear directorio logs, si no existe
 log_directory = 'logs/'
@@ -21,9 +22,11 @@ if not os.path.exists(log_directory):
 def hasNumbers(inputString):
 	return any(char.isdigit() for char in inputString)
 
-def printCountries():
+def printLocations():
     for country in sorted(countriesSet):
-        print "C: " + `country`
+        print "Pais: " + `country`
+    for city in sorted(citiesSet):
+        print "Ciudad: " + `city`
 # Busca una localidad en el nameString, entre paréntesis. Retorna -1 si no encuentra nada o si los datos son inválidos (contienen caracter ':''), de lo contrario retorna el string de la localidad
 def getLocationsInParenthesis(nameString):
     start_index = nameString.find("(")
@@ -51,11 +54,28 @@ def formattedCountryString(country_string):
 
 def createCountriesElements():
     for country in countriesSet:
-        locID = formattedCountryString(country)
+        countryID = formattedCountryString(country)
         #print("locID: " + locID)
-        countryElement = ET.SubElement( output['location_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'localidad/' + locID} )
+        countryElement = ET.SubElement( output['location_root'], 'owl:NamedIndividual', {'rdf:about': base_uri + 'localidad/' + countryID} )
+    for city in citiesSet:
+        cityID = formattedCountryString(city)
+        countryElement = ET.SubElement( output['location_root'], 'owl:NamedIndividual', {'rdf:about': base_uri + 'localidad/' + cityID} )
 
-BASE_URI = 'http://datos.uchile.cl/recurso'
+def fillAuthIDNamesDic(auth_name):
+    
+    for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 'start', 'end' ) ):
+        if event != 'end' or elem.tag != 'authority': continue
+        authority = elem
+        # Obtener mark 110 
+        nameElement = authority.find( ".//*[@tag='110']" )
+        if nameElement == None or nameElement.text == None: continue
+        authName = nameElement.text
+         # Obtener ID
+        authIDElement = authority.find('authorityID')
+        if authIDElement == None or authIDElement.text == None: return None
+        authID = authIDElement.text
+        authIDNames[authName[3:]] = authID 
+
 log_file = open(log_directory + 'log_corporativo.txt', 'w') 
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -63,11 +83,14 @@ pp = pprint.PrettyPrinter(indent=4)
 wa = {} # Diccionario para guardar las relaciones de tipo "anterior". Ej: Uchile wa UnivChile => Uchile paso a llamarse UnivChile en cierto momento
 wb = {} # Diccionario para guardar las relaciones de tipo "posterior". Ej: UnivChile wb UChile => UnivChile antes se llamaba Uchile
 
+authIDNames = {} # Diccionario para guardar id con nombre de las autoridades
+
 dic = {
-    'xmlns:owl': BASE_URI + 'ontologia/',
+    'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
     'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
     'xmlns:foaf': 'http://xmlns.com/foaf/0.1/',
-    'xmlns:rdfs': 'http://www.w3.org/TR/rdf-schema/'
+    'xmlns:rdfs': 'http://www.w3.org/TR/rdf-schema/',
+    'xmlns:dct': 'http://purl.org/dc/terms'
 }
 
 output = {
@@ -75,8 +98,8 @@ output = {
     'location_root' : ET.Element( 'rdf:RDF', dic ), #Elemento base para localidades
 }
 
-
 countriesSet = set([])
+citiesSet = set([])
 i = 0
 total = 0
 # Rescatar todos los paises del mundo desde archivo Json y agregarselos al countriesSet
@@ -87,7 +110,7 @@ for key in data.keys():
 with open('localizations/ciudades_chile.json') as data_file:    
     data = json.load(data_file)
 for d in data:
-    countriesSet.add(unidecode(d))
+    citiesSet.add(unidecode(d))
 
 
 # Recorrer todos los nodos para completar el  countriesSet (que aparecen entre parentesis en los nombres)
@@ -95,7 +118,6 @@ for d in data:
 for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 'start', 'end' ) ):
     
     if event != 'end' or elem.tag != 'authority': continue
-    
     authority = elem
 
     #for child in authority._children:
@@ -104,6 +126,15 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
             #for superchild in child._children:
                 #if superchild.attrib['tag'] == '510':
                     #superchild.text[0:3], '\n'
+    
+    # Obtener ID
+    authIDElement = authority.find('authorityID')
+
+    if authIDElement == None or authIDElement.text == None: 
+        date = str(datetime.now())
+        log_file.write('['+ date +']: '  + 'error: autoridad sin Id, iteracion ' +  `total` + '\n')
+        continue
+    authID = authIDElement.text
 
     # Obtener mark 110 
     nameElement = authority.find( ".//*[@tag='110']" )
@@ -125,27 +156,23 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
             # Caso en que el seeAlso de la autoridad contiene caracteres que no pueden ser decodificados
             log_file.write('error: seeAlsoFrom de autoridad "' + name + '"" con caracteres invalidos. seeAlsoFrom: "' + seeAlsoFrom.text + '"\n')
             continue
-        
-        if saf[0:3] == '|wa':
-            wa[name] = saf[3:]
-            wb[saf[3:]] = name
-            # print saf[3:]
-        if saf[0:3] == '|wb':
-            wb[name] = saf[3:]
-            wa[saf[3:]] = name
-            # print saf[3:]
 
-    # Reviso si el nombre contiene una localidad entre parentesis
-    '''
-    locationArr = getLocationsInParenthesis(name)
-    if locationArr is None: continue
-    for loc in locationArr:
-        if loc == -1 or loc == None or loc == "Firma": continue
-        else: countriesSet.add(loc)
-    '''
+        # Rescatar la id de la autoridad mencionada en seeAlsoFrom
+        if saf[5:] in authIDNames:
+            safID = authIDNames[saf[5:]]
+            if saf[0:3] == '|wa':
+                wa[authID] = saf[3:]
+                wb[safID] = authID
+                print "SAF " + saf[3:]
+            if saf[0:3] == '|wb':
+                wb[authID] = saf[safID]
+                wa[safID] = authID
+                print "SAF " + saf[3:]
+        # ----- Caro del futuro, el problema es que authIDNames esta guardando cosas que no estan en el seealso
+    
 
 createCountriesElements()
-printCountries()
+#printLocations()
 
 for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 'start', 'end' ) ):
     
@@ -163,9 +190,9 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
 
     authID = authIDElement.text
 
-    corporationElement = ET.SubElement( output['corporation_root'], 'owl:NamedIndividual', {'rdf:about': BASE_URI + 'corporacion/' + authID} )
+    corporationElement = ET.SubElement( output['corporation_root'], 'owl:NamedIndividual', {'rdf:about': base_uri + 'corporacion/' + authID} )
 
-    # Obtener mark 110 
+    #------ Obtener mark 110 --------#
     nameElement = authority.find( ".//*[@tag='110']" )
     if nameElement == None or nameElement.text == None:
         date = str(datetime.now())
@@ -173,34 +200,54 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
         if(authority.find(".//*[@tag='111']") == None):
             log_file.write('['+ date +']: ' + 'error: autoridad sin Tag 110 o 111, iteracion ' +  `total` + ', id = ' + authID + '\n')
         continue
+
     # Verificar que el nombre no contenga caracter ':' al comienzo
     if nameElement.text[0] == ':' :
         date = str(datetime.now())
         log_file.write('['+ date +']: ' + 'error: autoridad ID ' + authID + ' contiene caracter ":" al comienzo del campo 110' + '\n')
         continue
-    nElement = ET.SubElement(corporationElement, 'foaf:name')
-    nElement.text = nameElement.text
-    nLabelElement = ET.SubElement(corporationElement, 'rdfs:label')
-    nLabelElement.text = nameElement.text
 
-    # Obtener Localidad
-    name = pp.pformat(nameElement.text)
+    # Intentar aplicar unidecode al nombre
+    try:
+        name = unidecode(nameElement.text)
+    except Warning:
+        # Caso en que el nombre de la autoridad contiene caracteres que no pueden ser decodificados
+        continue
+
+    #------- Obtener Localidad -------#
     found = False
-   # Buscar localidad dentro del nombre (sin parentesis)
-    for country in countriesSet:
-        if name.find(country):
-            locationString = country
+    # Buscar localidad dentro del nombre (sin parentesis)
+    for city in citiesSet:
+        if name.find(city):
+            locationString = city
             found = True
             break
-   
+    if not found:
+        for country in countriesSet:
+            if name.find(country):
+                locationString = country
+                found = True
+                break
     if not found:
         date = str(datetime.now())
         log_file.write ('['+ date +']: ' + "error: autoridad id= " + authID + ", nombre= '" + name + "' no contiene nombre de localidad en campo 110" + '\n')
 
+    #------ Obtener nombres anteriores ------#
+
+
+    nElement = ET.SubElement(corporationElement, 'foaf:name')
+    nElement.text = nameElement.text[2:]
+    nLabelElement = ET.SubElement(corporationElement, 'rdfs:label')
+    nLabelElement.text = nameElement.text[2:]
+    locationUri = base_uri + 'localidad/' + formattedCountryString(locationString)
+    ET.SubElement(corporationElement, 'dct:spatial', {'rdf:resource': locationUri})
+    
     elem.clear()
     i += 1
 
 print "Procesados " + `i` + " de " + `total`
+
+
 
 log_file.close()
 ET.ElementTree( output['corporation_root'] ).write( 'output/corporaciones.rdf', 'utf-8' )
