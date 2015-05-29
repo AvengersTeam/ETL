@@ -22,6 +22,7 @@ Tutorial Ejecución
 ```bash
 > python etl_[tipo].py
 ```
+** Importante: algunos etl requieren que se haya ejecutado al menos alguna vez uno de los otros etl. Utilice 'run.py' para evitar problemas
 
 * Si desea correr todos a la vez ejecutar `run.py`
 ```bash
