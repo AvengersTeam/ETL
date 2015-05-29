@@ -8,7 +8,16 @@ import difflib # Para comparar strings por grado de similitud
 import os
 from unidecode import unidecode
 from datetime import datetime
+import warnings
 
+warnings.filterwarnings('error')
+
+# Crear directorio logs, si no existe
+log_directory = 'logs/'
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+
+# Retorna True si el inputString contiene números
 def hasNumbers(inputString):
 	return any(char.isdigit() for char in inputString)
 
@@ -48,7 +57,7 @@ def createCountriesElements():
 
 
 BASE_URI = 'http://datos.uchile.cl/'
-log_file = open(os.path.expanduser('~') + '\ETL\logs\log_corporativo.rtf', 'w') 
+log_file = open(log_directory + 'log_corporativo.txt', 'w') 
 pp = pprint.PrettyPrinter(indent=4)
 
 wa = {} # Diccionario para guardar las relaciones de tipo "anterior". Ej: Uchile wa UnivChile => Uchile paso a llamarse UnivChile en cierto momento
@@ -83,7 +92,6 @@ for d in data:
 
 # Recorrer todos los nodos para completar el  countriesSet (que aparecen entre parentesis en los nombres)
 # Recorrer todos los nodos tambien para guardar registros wb y wa (nombres posteriores y anteriores)
-
 for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 'start', 'end' ) ):
     
     if event != 'end' or elem.tag != 'authority': continue
@@ -100,13 +108,24 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
     # Obtener mark 110 
     nameElement = authority.find( ".//*[@tag='110']" )
     if nameElement == None or nameElement.text == None: continue
-    name = unidecode(nameElement.text)
+    try:
+        name = unidecode(nameElement.text)
+    except Warning:
+        # Caso en que el nombre de la autoridad contiene caracteres que no pueden ser decodificados
+        log_file.write('error: nombre de autoridad con caracteres invalidos' + nameElement.text + '\n')
+        continue
 
     seeAlsoFroms = authority.findall( ".//*[@tag='510']" )
     
     # Obener campo 510
     for seeAlsoFrom in seeAlsoFroms:
-        saf = unidecode(seeAlsoFrom.text)
+        try:
+            saf = unidecode(seeAlsoFrom.text)
+        except Warning:
+            # Caso en que el seeAlso de la autoridad contiene caracteres que no pueden ser decodificados
+            log_file.write('error: seeAlsoFrom de autoridad "' + name + '"" con caracteres invalidos. seeAlsoFrom: "' + seeAlsoFrom.text + '"\n')
+            continue
+        
         if saf[0:3] == '|wa':
             wa[name] = saf[3:]
             wb[saf[3:]] = name
@@ -124,8 +143,6 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
         if loc == -1 or loc == None or loc == "Firma": continue
         else: countriesSet.add(loc)
     '''
-
-    
 
 createCountriesElements()
 printCountries()
@@ -152,7 +169,9 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
     nameElement = authority.find( ".//*[@tag='110']" )
     if nameElement == None or nameElement.text == None:
         date = str(datetime.now())
-        log_file.write('['+ date +']: ' + 'error: autoridad sin Tag 110, iteracion ' +  `total` + ', id = ' + authID + '\n')
+        # Si el registro no tiene tag 110, debe tener tag 111, si no, es un error
+        if(authority.find(".//*[@tag='111']") == None):
+            log_file.write('['+ date +']: ' + 'error: autoridad sin Tag 110 o 111, iteracion ' +  `total` + ', id = ' + authID + '\n')
         continue
     # Verificar que el nombre no contenga caracter ':' al comienzo
     if nameElement.text[0] == ':' :
@@ -166,8 +185,6 @@ for event, elem in ET.iterparse( 'input/autoridades-corporativos.xml', events=( 
 
     # Obtener Localidad
     name = pp.pformat(nameElement.text)
-    
-
     found = False
    # Buscar localidad dentro del nombre (sin parentesis)
     for country in countriesSet:
@@ -187,8 +204,9 @@ print "Procesados " + `i` + " de " + `total`
 
 log_file.close()
 ET.ElementTree( output['corporation_root'] ).write( 'output/corporaciones.rdf', 'utf-8' )
-
+ET.ElementTree( output['location_root']).write( 'output/localidades.rdf', 'utf-8' )
 with open( 'output/corporaciones.rdf', 'r' ) as ini, open( 'output/corporaciones_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )
+with open( 'output/localidades.rdf', 'r' ) as ini, open( 'output/localidades_pretty.rdf', 'w' ) as out: out.write( etree.tostring( etree.XML( ini.read() ), pretty_print = True, encoding='utf-8' ) )
 
 # print("ratio!! " + `difflib.SequenceMatcher(None,'no information available','n0 inf0rmation available').ratio()`)
 
