@@ -10,7 +10,7 @@ BASE_URI = 'http://datos.uchile.cl/recurso/'
 log_file = open('./logs/log_autoridades.txt', 'w') 
 
 dic = {
-    'xmlns:owl': BASE_URI + 'ontologia/',
+    'xmlns:owl': 'http://datos.uchile.cl/ontologia/',
     'xmlns:foaf': 'http://xmlns.com/foaf/0.1/',
     'xmlns:bio': 'http://vocab.org/bio/0.1/',
     'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'

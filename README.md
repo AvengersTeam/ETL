@@ -5,7 +5,7 @@ Tutorial Instalación
 --------------------
 
 * Instalar [Python2.7](https://www.python.org/download/releases/2.7/)
-* Instalar la librería [lxml](http://lxml.de/installation.html)
+* Instalar la biblioteca [lxml](http://lxml.de/installation.html)
 ```bash
 > pip install lxml
 ```
@@ -20,7 +20,7 @@ Tutorial Ejecución
 
 * Ejecutar ETL correspondiente
 ```bash
-> python etl-[tipo].py
+> python etl_[tipo].py
 ```
 
 * Si desea correr todos a la vez ejecutar `run.py`
