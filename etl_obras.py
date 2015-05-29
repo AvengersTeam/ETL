@@ -29,9 +29,6 @@ output_expresion_root = ET.Element('rdf:RDF', {'xmlns:owl': 'http://datos.uchile
                                             'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'})
 
 i = 0
-'''
-input_tree = ET.parse('input/Portfolio-Andres-bello.xml')
-input_root = input_tree.getroot()
 
 personDict = makeDictionary(
     filepath = 'output/personas_pretty.rdf', 
@@ -39,8 +36,6 @@ personDict = makeDictionary(
     attribute = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about'
     )
 
-for asset in input_root.iterfind("asset"):
-'''
 for event, elem  in ET.iterparse('input/Portfolio-Andres-bello.xml',events=( 'start', 'end', 'start-ns', 'end-ns' ) ):
     i+=1
     #print i
@@ -67,7 +62,7 @@ for event, elem  in ET.iterparse('input/Portfolio-Andres-bello.xml',events=( 'st
     alternative = asset.find(".//*[@name='NAME']")
     alternativeElement = ET.SubElement(obraElement, 'dct:alternative')        
     alternativeElement.text = alternative.find('value').text
-    
+
     #adding the creator's uri
     creator = asset.find(".//*[@name='Creator']")
     uri = None
