@@ -68,6 +68,7 @@ for event, elem in ET.iterparse( 'input/autoridades-eventos.xml', events=( 'star
     altNameElement = authority.find( ".//*[@tag='670']" )
     if altNameElement != None:
         altName = altNameElement.text
+        altName = altName[2:]
         altNameElement = ET.SubElement(eventElement, 'dct:alternative')
         altNameElement.text = altName
 
@@ -75,7 +76,7 @@ for event, elem in ET.iterparse( 'input/autoridades-eventos.xml', events=( 'star
         if entry == '': continue
         # caso fechas
         if entry[0] == 'd':
-            # arreglo de fechas nacimiento - muerte
+            # arreglo de fechas
             year = entry[1:]
             # saco todos los caracteres que no son números
             year = re.sub("[^0-9]", "", year)
