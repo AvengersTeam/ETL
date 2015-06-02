@@ -83,7 +83,14 @@ for event, elem  in ET.iterparse('input/Portfolio-Andres-bello.xml',events=( 'st
     issued = asset.find(".//*[@name='Date']")
     issuedElement = ET.SubElement(obraElement, 'dct:issued')
     if issued !=None:
-        issuedElement.text = issued.find('value').text
+        date = issued.find('value').text
+        if date[0:6]=="[entre":
+            issuedElement.text = date[7:11]+" - "+date[14:18]+" rango estimado"
+        else:
+            if date[len(date)-1]=='?':
+                issuedElement.text = date[0:2]+"00 fecha estimada"
+            else:
+                issuedElement.text = issued.find('value').text
     #agregar type
     ET.SubElement(obraElement, 'rdf:type', {'rdf:resource': 'frbrer:C1001'})
     #agregar link a expresion
