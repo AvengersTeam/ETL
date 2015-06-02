@@ -17,6 +17,7 @@ dic = {
     'xmlns:owl': BASE_URI + 'ontologia/',
     'xmlns:dct': 'http://purl.org/dc/terms/',
     'xmlns:rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'xmlns:frbrer': 'http://iflastandards.info/ns/fr/frbr/frbrer#',
     'xmlns:schema': 'http://schema.org'
 }
 
@@ -72,6 +73,8 @@ for event, elem in ET.iterparse( 'input/autoridades-eventos.xml', events=( 'star
         altNameElement = ET.SubElement(eventElement, 'dct:alternative')
         altNameElement.text = altName
 
+    ET.SubElement(eventElement, 'rdf:type', {'rdf:resource': 'frbrer:C1009'})
+    
     for entry in marcEntryTextArray:
         if entry == '': continue
         # caso fechas
