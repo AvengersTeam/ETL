@@ -64,6 +64,13 @@ for event, elem in ET.iterparse( 'input/autoridades-eventos.xml', events=( 'star
     nameElement = ET.SubElement(eventElement, 'dct:title')
     nameElement.text = name
 
+    # caso nombre alternativo
+    altNameElement = authority.find( ".//*[@tag='670']" )
+    if altNameElement != None:
+        altName = altNameElement.text
+        altNameElement = ET.SubElement(eventElement, 'dct:alternative')
+        altNameElement.text = altName
+
     for entry in marcEntryTextArray:
         if entry == '': continue
         # caso fechas
